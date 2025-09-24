@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Немецкий словарь</title>
+<title>Deutsches Wörterbuch</title>
 <style>
   :root {
     --bg: #f0f2f5;
@@ -20,6 +20,7 @@
     --radius-pill: 14px;
     --shadow-1: 0 8px 20px rgba(0, 0, 0, 0.08);
     --shadow-2: 0 2px 8px rgba(0, 0, 0, 0.2);
+    --brand-accent: #2aa4bf;
   }
   * { box-sizing: border-box; }
   body {
@@ -99,50 +100,109 @@
     color: var(--text);
   }
   .hl { font-weight: 700; }
+
+  /* контейнер для альтернативных кнопок, если используешь .buttons */
   .buttons {
     display: flex;
-    justify-content: space-between;
-    width: 92%;
-    max-width: 520px;
-    margin-top: 0.5em;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    width: 96%;
+    max-width: 560px;
+    margin-top: 1rem;
   }
-  .buttons button, #speakBtn, .small-btn {
-    padding: 0.6em 1.1em;
-    font-size: 1em;
-    border-radius: 10px;
+
+  /* СОВРЕМЕННЫЕ КНОПКИ: применяются к prev/next (.toolbar .right button),
+     а также к #speakBtn и .small-btn; добавлен градиент, тени, анимации, ripple */
+  .buttons button,
+  .toolbar .right button,
+  #speakBtn,
+  .small-btn {
+    width: 150px;
+    position: relative;
+    overflow: hidden;
+    padding: 0.95em 1.35em;
+    font-size: 1.06rem;
+    line-height: 1;
+    border-radius: 16px;
     border: none;
-    background-color: var(--brand);
-    color: white;
-    font-weight: 600;
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-accent) 100%);
+    color: #ffffff;
+    font-weight: 700;
+    letter-spacing: 0.2px;
     cursor: pointer;
-    transition: background 0.25s, transform 0.15s;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    margin: 0.3em;
+    transition: transform 0.15s ease, filter 0.25s ease, box-shadow 0.25s ease;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.06);
+    margin: 0.35em;
+    -webkit-tap-highlight-color: transparent;
   }
-  .buttons button:hover, #speakBtn:hover, .small-btn:hover {
-    background-color: var(--brand-dark);
-    transform: translateY(-1px);
+  .buttons button:hover,
+  .toolbar .right button:hover,
+  #speakBtn:hover,
+  .small-btn:hover {
+    filter: brightness(1.03) saturate(1.05);
+    transform: translateY(-2px);
   }
+  .buttons button:active,
+  .toolbar .right button:active,
+  #speakBtn:active,
+  .small-btn:active {
+    transform: translateY(0) scale(0.98);
+    filter: brightness(0.98);
+  }
+  .buttons button:focus-visible,
+  .toolbar .right button:focus-visible,
+  #speakBtn:focus-visible,
+  .small-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(31,111,139,0.25), 0 10px 24px rgba(0, 0, 0, 0.12);
+  }
+  /* мягкий ripple-эффект */
+  .buttons button::after,
+  .toolbar .right button::after,
+  #speakBtn::after,
+  .small-btn::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(120px 120px at center, rgba(255,255,255,0.35), rgba(255,255,255,0) 70%);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+  }
+  .buttons button:active::after,
+  .toolbar .right button:active::after,
+  #speakBtn:active::after,
+  .small-btn:active::after {
+    opacity: 1;
+  }
+
   .toolbar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content:  center;
     gap: 8px;
     margin-top: 10px;
   }
-  .toolbar .right { display: flex; gap: 8px; }
-  .hint { color: var(--muted); font-size: 0.9em; }
+  .toolbar .right { display: flex; gap: 8px; justify-content: center; }
+
   @media (max-width: 600px) {
     header { font-size: 1.2em; padding: 0.8em 0; }
     .card { padding: 1em; }
     .card h2 { font-size: 1.3em; }
-    .buttons button, #speakBtn { padding: 0.5em 1em; font-size: 0.95em; }
+    .buttons button,
+    .toolbar .right button,
+    #speakBtn {
+      font-size: 1.04rem;
+      padding: 0.9em 1.2em;
+      border-radius: 15px;
+    }
   }
 </style>
 </head>
 <body>
 
-<header>Немецкий словарь</header>
+<header>Deutsches Wörterbuch</header>
 
 <div class="card" id="card">
   <div class="meta" id="meta">
@@ -152,18 +212,17 @@
     <div class="pill de" aria-label="Beispiel auf Deutsch">
       <div class="label">🇩🇪 Beispiel</div>
       <div class="content" id="example">Das <span class="hl">Haus</span> ist groß.</div>
-      <button class="small-btn" id="speakBtn" title="Beispiel vorlesen">🔊 Прослушать</button>
+      <button class="small-btn" id="speakBtn" title="Beispiel vorlesen">🔊 Vorlesen</button>
     </div>
     <div class="pill ru" aria-label="Übersetzung auf Russisch">
-      <div class="label">🇷🇺 Перевод</div>
+      <div class="label">🇷🇺 Übersetzung</div>
       <div class="content" id="exampleTr"><span class="hl">Дом</span> большой.</div>
     </div>
   </div>
   <div class="toolbar">
-    <span class="hint">Совет: кликай «Следующая», чтобы перемешанные карточки листать.</span>
     <div class="right">
-      <button id="prev">Предыдущая</button>
-      <button id="next">Следующая</button>
+      <button id="prev">Vorherige</button>
+      <button id="next">Nächste</button>
     </div>
   </div>
 </div>
