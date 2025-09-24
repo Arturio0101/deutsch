@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Немецкий словарь</title>
+<style>
+  :root {
+    --bg: #f0f2f5;
+    --brand: #1f6f8b;
+    --brand-dark: #145374;
+    --card-bg: #ffffff;
+    --de-bg: #eef7ff;
+    --ru-bg: #f6f1ff;
+    --border: #d7dee5;
+    --text: #333333;
+    --muted: #5e6b74;
+    --radius-lg: 15px;
+    --radius-md: 12px;
+    --radius-pill: 14px;
+    --shadow-1: 0 8px 20px rgba(0, 0, 0, 0.08);
+    --shadow-2: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding-top: 70px; /* пространство под sticky header */
+    color: var(--text);
+  }
+  header {
+    position: fixed;
+    top: 0; left: 0; width: 100%;
+    background-color: var(--brand);
+    color: white;
+    text-align: center;
+    font-size: 1.5em;
+    font-weight: 600;
+    padding: 1em 0;
+    box-shadow: var(--shadow-2);
+    z-index: 1000;
+  }
+  .card {
+    background: var(--card-bg);
+    margin: 1em 0;
+    padding: 1.25em 1.25em 1em;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-1);
+    width: 92%;
+    max-width: 520px;
+    text-align: left;
+    transition: transform 0.3s, box-shadow 0.3s, opacity 0.3s;
+    opacity: 0;
+  }
+  .card.show { opacity: 1; }
+  .card h2 {
+    margin: 0.25em 0 0.75em;
+    font-size: 1.45em;
+    color: var(--brand);
+  }
+  .meta {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+    color: var(--muted);
+    font-size: 0.95em;
+  }
+  .pill-group {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .pill {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    padding: 0.9em 1em;
+    background: #fff;
+  }
+  .pill.de { background: var(--de-bg); }
+  .pill.ru { background: var(--ru-bg); }
+  .pill .label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 0.92em;
+    color: var(--brand-dark);
+    margin-bottom: 6px;
+  }
+  .pill .content {
+    font-size: 1.02em;
+    line-height: 1.5;
+    color: var(--text);
+  }
+  .hl { font-weight: 700; }
+  .buttons {
+    display: flex;
+    justify-content: space-between;
+    width: 92%;
+    max-width: 520px;
+    margin-top: 0.5em;
+  }
+  .buttons button, #speakBtn, .small-btn {
+    padding: 0.6em 1.1em;
+    font-size: 1em;
+    border-radius: 10px;
+    border: none;
+    background-color: var(--brand);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.25s, transform 0.15s;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    margin: 0.3em;
+  }
+  .buttons button:hover, #speakBtn:hover, .small-btn:hover {
+    background-color: var(--brand-dark);
+    transform: translateY(-1px);
+  }
+  .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .toolbar .right { display: flex; gap: 8px; }
+  .hint { color: var(--muted); font-size: 0.9em; }
+  @media (max-width: 600px) {
+    header { font-size: 1.2em; padding: 0.8em 0; }
+    .card { padding: 1em; }
+    .card h2 { font-size: 1.3em; }
+    .buttons button, #speakBtn { padding: 0.5em 1em; font-size: 0.95em; }
+  }
+</style>
+</head>
+<body>
+
+<header>Немецкий словарь</header>
+
+<div class="card" id="card">
+  <div class="meta" id="meta">
+    <div id="wordHead"><strong>Haus</strong> — <span id="wordTr">дом</span></div>
+  </div>
+  <div class="pill-group">
+    <div class="pill de" aria-label="Beispiel auf Deutsch">
+      <div class="label">🇩🇪 Beispiel</div>
+      <div class="content" id="example">Das <span class="hl">Haus</span> ist groß.</div>
+      <button class="small-btn" id="speakBtn" title="Beispiel vorlesen">🔊 Прослушать</button>
+    </div>
+    <div class="pill ru" aria-label="Übersetzung auf Russisch">
+      <div class="label">🇷🇺 Перевод</div>
+      <div class="content" id="exampleTr"><span class="hl">Дом</span> большой.</div>
+    </div>
+  </div>
+  <div class="toolbar">
+    <span class="hint">Совет: кликай «Следующая», чтобы перемешанные карточки листать.</span>
+    <div class="right">
+      <button id="prev">Предыдущая</button>
+      <button id="next">Следующая</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const words = [
+    { word: "vorhersagen", wordTranslation: "предсказывать", example: "Es ist ziemlich schwierig vorherzusagen, wie das in der Zukunft aussehen wird.", exampleTranslation: "Довольно сложно предсказать, как это будет выглядеть в будущем." },
+    { word: "Stau", wordTranslation: "Пробка (дорожная)", example: "Hoffentlich wird es eine angenehme Fahrt ohne Stau.", exampleTranslation: "Надеюсь это будет приятная поездка без пробок." },    
+    { word: "gültig", wordTranslation: "действительный (валидный)", example: "Diese Zutrittskarte ist leider ungültig, weil sie beschätigt ist.", exampleTranslation: "Это проходная карта не действительна, потому-что повреждена." },
+    { word: "an|legen", wordTranslation: "открыть/создать", example: "Der neuer Benutzer wurde erfolgreich im System angelegt.", exampleTranslation: "Новый пользователь был успешно создан в системе." },
+    { word: "Fahrzeug", wordTranslation: "Транспортное средство", example: "Für jedes Fahrzeug muss eine eigene Disposition im System angelegt werden.", exampleTranslation: "Для каждого транспортного средства должна быть создана отдельная диспозиция в системе." },
+    { word: "auf|tauchen", wordTranslation: "появляться/всплывать", example: "In System ist eine unbekannte Fahrzeugnummer aufgetaucht", exampleTranslation: "В системе появился неизвестный номер авто." },
+    { word: "überlege", wordTranslation: "обдумывать", example: "Ich überlege, wie wir den Prozess effezienter destalten Können.", exampleTranslation: "Я обдумываю, как мы можем сделать процесс более эффективным." },
+    { word: "Notiz", wordTranslation: "Заметка", example: "Die interne Notiz wurde beim Auftrag manuell angelegt", exampleTranslation: "Внутренняя заметка была вручную добавлена к заказу." },
+    { word: "übertragen", wordTranslation: "переносить/перемещать", example: "Die Daten aus dem alten System müssen manuell in das neue System übertragen werden.", exampleTranslation: "Данные из старой системы нужно вручную перенести в новую." },
+    { word: "Übersicht", wordTranslation: "Обзор", example: "In TYPO3 mochte ich eine Ubersicht integrieren, damit das Team schnell auf alle Kundendaten zugreifen kann.", exampleTranslation: "Я хочу внедрить обзов в TYPO3, чтобы команда могла быстро получать доступ ко всем клиентским данным." },
+    { word: "Ausgeliefert", wordTranslation: "доставленный/переданный/отгруженный", example: "Sobald das Fahrzeug ausgeliefert ist, wird der Auftrag abgeschlossen.", exampleTranslation: "Как только авто доставлено, заказ считается выполненым." },
+    { word: "mit|teilen", wordTranslation: "сообщать", example: "Wir teilen dem Kunden den Liefertermin seines Fahrzeugs mit.", exampleTranslation: "Мы сообщаем клиенту срок доставки его авто." },
+    { word: "völlstandig", wordTranslation: "полностью/полный", example: "Die Fahrzeufdaten sind unvöllstandig.", exampleTranslation: "Данные об авто неполные." },
+    { word: "hochladen", wordTranslation: "загружать", example: "Die fotos wurden erfolgreich hochgeladen.", exampleTranslation: "Фото были успешно загружены." },
+    { word: "Vorlaufzeit", wordTranslation: "Время подготовки/предварительный срок", example: "Die Vorlaufzeit bei der Zulassung eines Fahrzeugs kann varieren.", exampleTranslation: "Время подготовки при регистрации авто может варироваться." },
+    { word: "Pflicht", wordTranslation: "Обязанность/Требование/Долг", example: "Es ist unsere Pflicht, älteren Menschen zu helfen.", exampleTranslation: "Это наш долг — помогать пожилым людям." },
+    { word: "Stellplatz", wordTranslation: "Парковочное место", example: "Wir haben einen Stellplatz für unser Auto vor dem Haus.", exampleTranslation: "У нас есть парковочное место для машины перед домом." },
+    { word: "Bezüglich", wordTranslation: "касательно/относительно", example: "Bezüglich Ihrer Frage können Sie den Chef morgen anrufen.", exampleTranslation: "Относительно вашего вопроса вы можете позвонить начальнику завтра." },
+    { word: "Werkstatt", wordTranslation: "Мастерская/автомастерская", example: "Mein Auto ist kaputt, deshalb bringe ich es morgen in die Werkstatt.", exampleTranslation: "Моя машина сломалась, поэтому завтра я отвезу её в мастерскую." },
+    { word: "Leerfahrt", wordTranslation: "порожний рейс/холостая поездка", example: "Der Bus machte eine Leerfahrt zurück ins Depot.", exampleTranslation: "Автобус совершил холостую поездку обратно в депо." },
+    { word: "Außenspiegel", wordTranslation: "Боковое зеркало", example: "Der Außenspiegel auf der rechten Seite ist kaputt und muss repariert werden.", exampleTranslation: "Боковое зеркало справа сломано и должно быть отремонтировано." },
+    { word: "Windschutzscheibe", wordTranslation: "Лобовое стекло", example: "Im Winter muss man oft die Windschutzscheibe vom Eis befreien.", exampleTranslation: "Зимой часто приходится очищать лобовое стекло от льда." },
+    { word: "Zustand", wordTranslation: "Состояние", example: "Das gebrauchte Auto ist noch in sehr gutem Zustand.", exampleTranslation: "Подержанная машина всё ещё в очень хорошем состоянии." },
+    { word: "Rücklichter", wordTranslation: "задние фонари (у автомобиля)", example: "Die Rücklichter funktionieren nicht, deshalb muss ich sie reparieren lassen.", exampleTranslation: "Задние фонари не работают, поэтому мне нужно отдать их в ремонт." },
+    { word: "angefangen", wordTranslation: "начатый, началось", example: "Ich habe gestern mit dem neuen Projekt angefangen.", exampleTranslation: "Я вчера начал новый проект." },
+    { word: "erneut", wordTranslation: "снова/ещё раз/повторно", example: "Der Bus hatte erneut Verspätung.", exampleTranslation: "Автобус снова опоздал." },
+    { word: "Einstellungen", wordTranslation: "Настройки", example: "Wenn du das Programm nicht benutzen kannst, überprüfe bitte zuerst die Einstellungen auf deinem Computer.", exampleTranslation: "Если ты не можешь пользоваться программой, сначала проверь настройки на своём компьютере." },
+    { word: "verknüpfen", wordTranslation: "связывать/соединять", example: "Du kannst dein neues Benutzerkonto mit deiner E-Mail-Adresse verknüpfen.", exampleTranslation: "Ты можешь связать свою новую учётную запись с адресом электронной почты." },
+    { word: "verbinden", wordTranslation: "соединять/связывать", example: "Die neue Bahnstrecke verbindet das Lager direkt mit dem Hafen.", exampleTranslation: "Новая железнодорожная линия соединяет склад напрямую с портом." }
+  ];
+
+  function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+  }
+  shuffleArray(words);
+
+  let currentIndex = 0;
+
+  const card = document.getElementById('card');
+  const exampleEl = document.getElementById('example');
+  const exampleTrEl = document.getElementById('exampleTr');
+  const wordHead = document.getElementById('wordHead');
+  const wordTr = document.getElementById('wordTr');
+
+  const highlightWord = (text, word) => {
+    // Безопасная подсветка для вариантов с разделителем (an|legen)
+    const clean = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace('\\|', '|');
+    const re = new RegExp(`(${clean.replace('|', '')})`, 'gi');
+    return text.replace(re, '<span class="hl">$1</span>');
+  };
+
+  function speakText(text) {
+    if ('speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'de-DE';
+      speechSynthesis.speak(utterance);
+    } else {
+      alert('Ваш браузер не поддерживает озвучку.');
+    }
+  }
+
+  function updateCard() {
+    const current = words[currentIndex];
+    card.classList.remove('show');
+    setTimeout(() => {
+      // Заголовок: слово — перевод
+      wordHead.innerHTML = `<strong>${current.word}</strong> — <span id="wordTr">${current.wordTranslation}</span>`;
+      // Контент блоков
+      exampleEl.innerHTML = highlightWord(current.example, current.word.replace('|',''));
+      exampleTrEl.innerHTML = highlightWord(current.exampleTranslation, current.wordTranslation);
+      // Обновить кнопку озвучки
+      const speakBtn = document.getElementById('speakBtn');
+      speakBtn.onclick = () => speakText(current.example);
+      card.classList.add('show');
+    }, 90);
+  }
+
+  document.getElementById('next').addEventListener('click', () => {
+    currentIndex = (currentIndex + 1) % words.length;
+    updateCard();
+  });
+  document.getElementById('prev').addEventListener('click', () => {
+    currentIndex = (currentIndex - 1 + words.length) % words.length;
+    updateCard();
+  });
+
+  // initial
+  updateCard();
+</script>
+</body>
+</html>
