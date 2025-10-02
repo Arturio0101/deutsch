@@ -31,7 +31,7 @@
     flex-direction: column;
     align-items: center;
     min-height: 100vh;
-    padding-top: 70px; /* пространство под sticky header */
+    padding-top: 70px; 
     color: var(--text);
   }
   header {
@@ -101,7 +101,6 @@
   }
   .hl { font-weight: 700; }
 
-  /* контейнер для альтернативных кнопок, если используешь .buttons */
   .buttons {
     display: flex;
     justify-content: center;
@@ -112,8 +111,6 @@
     margin-top: 1rem;
   }
 
-  /* СОВРЕМЕННЫЕ КНОПКИ: применяются к prev/next (.toolbar .right button),
-     а также к #speakBtn и .small-btn; добавлен градиент, тени, анимации, ripple */
   .buttons button,
   .toolbar .right button,
   #speakBtn,
@@ -157,7 +154,6 @@
     outline: none;
     box-shadow: 0 0 0 3px rgba(31,111,139,0.25), 0 10px 24px rgba(0, 0, 0, 0.12);
   }
-  /* мягкий ripple-эффект */
   .buttons button::after,
   .toolbar .right button::after,
   #speakBtn::after,
@@ -423,15 +419,12 @@
   shuffleArray(words);
 
   let currentIndex = 0;
-
   const card = document.getElementById('card');
   const exampleEl = document.getElementById('example');
   const exampleTrEl = document.getElementById('exampleTr');
   const wordHead = document.getElementById('wordHead');
-  const wordTr = document.getElementById('wordTr');
 
   const highlightWord = (text, word) => {
-    // Безопасная подсветка для вариантов с разделителем (an|legen)
     const clean = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace('\\|', '|');
     const re = new RegExp(`(${clean.replace('|', '')})`, 'gi');
     return text.replace(re, '<span class="hl">$1</span>');
@@ -442,8 +435,6 @@
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'de-DE';
       speechSynthesis.speak(utterance);
-    } else {
-      alert('Ваш браузер не поддерживает озвучку.');
     }
   }
 
@@ -451,14 +442,10 @@
     const current = words[currentIndex];
     card.classList.remove('show');
     setTimeout(() => {
-      // Заголовок: слово — перевод
       wordHead.innerHTML = `<strong>${current.word}</strong> — <span id="wordTr">${current.wordTranslation}</span>`;
-      // Контент блоков
       exampleEl.innerHTML = highlightWord(current.example, current.word.replace('|',''));
       exampleTrEl.innerHTML = highlightWord(current.exampleTranslation, current.wordTranslation);
-      // Обновить кнопку озвучки
-      const speakBtn = document.getElementById('speakBtn');
-      speakBtn.onclick = () => speakText(current.example);
+      document.getElementById('speakBtn').onclick = () => speakText(current.example);
       card.classList.add('show');
     }, 90);
   }
@@ -472,8 +459,29 @@
     updateCard();
   });
 
-  // initial
   updateCard();
+
+  // === Service Worker встраиваем прямо здесь ===
+  if ("serviceWorker" in navigator) {
+    const swCode = `
+      const CACHE_NAME = "woerterbuch-singlefile-v1";
+      self.addEventListener("install", (event) => {
+        event.waitUntil(
+          caches.open(CACHE_NAME).then((cache) => cache.addAll(["./"]))
+        );
+      });
+      self.addEventListener("fetch", (event) => {
+        event.respondWith(
+          caches.match(event.request).then((resp) => resp || fetch(event.request))
+        );
+      });
+    `;
+    const blob = new Blob([swCode], { type: "application/javascript" });
+    const swUrl = URL.createObjectURL(blob);
+    navigator.serviceWorker.register(swUrl).then(() => {
+      console.log("✅ Service Worker активирован (офлайн поддержка)");
+    });
+  }
 </script>
 </body>
 </html>
